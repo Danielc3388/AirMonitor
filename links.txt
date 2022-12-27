@@ -1,3 +1,5 @@
 Hardware : https://robocraze.com/blogs/post/mq-series-gas-sensor
 
 Software : https://steemit.com/utopian-io/@cha0s0000/arduino-basics-tutorials-use-mq135-air-quality-detecting-module
+
+Reference : https://w3.eclass.com.hk/event/STEM_contest_voting/end.php#
