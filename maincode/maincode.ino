@@ -49,57 +49,57 @@ void loop() {
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html");
           client.println("Connection: close");  
-          client.println("Refresh: 1");
+          client.println("Refresh: 0.1");
           client.println();
           client.println("<!DOCTYPE HTML>");
           client.println("<html>");
-          client.println("<main id=\"main\" class=\"main-content\">"); //add some titles and contect classifications
-          /*build the table****************************/
+          client.println("<title>Data from Arduino</title>");
+          client.println("<h1 style='font-size:55px;'>Data from Arduino Gas Sensor Project</h1>");
+          client.println("<main id=\"main\" class=\"main-content\">");
+          
           client.println("<TABLE BORDER=\"5\" WIDTH=\"50%\" CELLPADDING=\"4\" CELLSPACING=\"3\">");
           client.println("<TR>");
-          client.println("<TH COLSPAN=\"2\"><BR><H3>SENSOR DATA</H3>");
+          client.println("<TH COLSPAN=\"3\"><BR><H3>SENSOR DATA</H3>");
           client.println("</TH>");
           client.println("</TR>");
           client.println("<TR>");
-          client.println("<TH>CHANNEL</TH>");
+          client.println("<TH>Sensor Slot</TH>");
           client.println("<TH>VALUE</TH>");
+          client.println("<TH>STATE</TH>");
           client.println("</TR>");
-          /*******************************************/
-          // output the value of each analog input pin to the table
-          for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
+          
+          for (int analogChannel = 0; analogChannel < 4; analogChannel++) {
             int sensorReading = analogRead(analogChannel); //read analogs
-            /*Add the channel to the table with the class identifier*/
             client.println("<TR ALIGN=\"CENTER\">");
             client.print("<TD class=\"chan\">");
             client.print(analogChannel);
             client.println("</TD>");
-            /*******************************************************/
-            /*Add the coorosponding value to the table*************/
+            
             client.print("<TD class=\"value\">");
             client.print(sensorReading);
+            if (sensorReading > 0){
+              client.print("<TD style='background-color:#ff0000;color:#ff0000;'>");
+            } else {
+              client.print("<TD style='background-color:#00FF00;color:#00FF00;'>");
+
+            }
             client.println("</TD>");
             client.println("</TR>");
-            /******************************************************/
           }
-          /*End the HTML****************/
           client.println("</TABLE>");
+          client.println("<p>System Created by Daniel Chan</p>");
           client.println("</main>");
           client.println("</html>");
-          /***************************/
           break;
         }
         if (c == '\n') {
-          // you're starting a new line
           currentLineIsBlank = true;
         } else if (c != '\r') {
-          // you've gotten a character on the current line
           currentLineIsBlank = false;
         }
       }
     }
-    // give the web browser time to receive the data
     delay(1);
-    // close the connection:
     client.stop();
     Serial.println("client disconnected");
   }
