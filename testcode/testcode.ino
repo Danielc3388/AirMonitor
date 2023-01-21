@@ -1,6 +1,8 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <SoftwareSerial.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 int a, b, c, d;
 
@@ -13,6 +15,8 @@ IPAddress ip(192, 168, 1, 177);
 
 EthernetServer server(80);
 SoftwareSerial BTSerial (4, 3);
+LiquidCrystal_I2C lcd(0x27, 16, 2); 
+
 
 
 void createWeb() {
@@ -141,7 +145,8 @@ bool EthernetEnable = LOW;
 bool BTEnable = LOW;
 
 void setup() {
-
+  lcd.init();
+  lcd.backlight();
   Serial.begin(9600);
   BTSerial.begin(9600);
   while (!Serial) {
@@ -165,6 +170,7 @@ void setup() {
   Serial.println(Ethernet.localIP());
   pinMode(2, INPUT_PULLUP);
   pinMode(5, INPUT_PULLUP);
+  
 
 }
 
@@ -176,13 +182,23 @@ void loop() {
   b = analogRead(1);
   c = analogRead(2);
   d = analogRead(3);
+  lcd.clear();
+  lcd.setCursor(0,0);
 
   if (EthernetEnable == HIGH) {
+    lcd.print("IP:192.168.1.177");
     createWeb();
   } else {
     EthDisabled();
+    lcd.print("Ethernet Disabled");
   }
+  lcd.setCursor(0,1);
   if (BTEnable == HIGH) {
+    lcd.print("BT Enabled");
     sendBT();
+    
+  } else{
+    lcd.print("BT Disabled");
   }
+  delay(50);
 }
