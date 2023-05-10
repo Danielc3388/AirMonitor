@@ -19,6 +19,7 @@ Use with project : Gas sensor
 #include <LiquidCrystal_I2C.h>
 
 int a, b, c, d; //variables for gas sensor data to store
+bool state;
 
 
 byte mac[] = {
@@ -208,24 +209,33 @@ void loop() {
   b = analogRead(1);
   c = analogRead(2);
   d = analogRead(3);
-  
-  lcd.clear();  //clear data on LCD
-  lcd.setCursor(0,0);   //set the cursor of LCD to first row, first digit
 
-  if (EthernetEnable == HIGH) {
-    lcd.print("IP:192.168.1.177");  //notify the user the ip address of data
-    createWeb();
+  state = !digitalRead(3);
+
+  if (state == HIGH){
+    lcd.clear();  //clear data on LCD
+    lcd.setCursor(0,0);   //set the cursor of LCD to first row, first digit
+  
+    if (EthernetEnable == HIGH) {
+      lcd.print("IP:192.168.1.177");  //notify the user the ip address of data
+      createWeb();
+    } else {
+      EthDisabled();
+      lcd.print("Ethernet Disabled");   //notify the user ethernet is disabled
+    }
+    lcd.setCursor(0,1); //set the cursor of LCD to second row, first digit
+    if (BTEnable == HIGH) {
+      lcd.print("BT Enabled");  //notify the user bluetooth is connected
+      sendBT();
+      
+    } else{
+      lcd.print("BT Disabled"); //norifying the user bluetooth is disabled
+    }
   } else {
-    EthDisabled();
-    lcd.print("Ethernet Disabled");   //notify the user ethernet is disabled
+    for i in range(0,3){
+      
+    }
   }
-  lcd.setCursor(0,1); //set the cursor of LCD to second row, first digit
-  if (BTEnable == HIGH) {
-    lcd.print("BT Enabled");  //notify the user bluetooth is connected
-    sendBT();
-    
-  } else{
-    lcd.print("BT Disabled"); //norifying the user bluetooth is disabled
-  }
+  
   delay(50);
 }
