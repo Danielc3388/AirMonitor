@@ -5,8 +5,9 @@ Function :  To read data from arduino board and send the data
 
 Author : Daniel Chan
 Created on : Jan 2023
-Last modified : 23 Feb 2023
+Last modified : 16 May 2023
 Use with project : Gas sensor
+Github :  https://github.com/Danielc3388/AirMonitor.git
 
 */
 
@@ -19,7 +20,6 @@ Use with project : Gas sensor
 #include <LiquidCrystal_I2C.h>
 
 int a, b, c, d; //variables for gas sensor data to store
-bool state;
 
 
 byte mac[] = {
@@ -30,8 +30,8 @@ IPAddress ip(192, 168, 1, 177); //IP address for the ethernet
 
 
 EthernetServer server(80);
-SoftwareSerial BTSerial (4, 3);   //bluetooth pin
-LiquidCrystal_I2C lcd(0x27, 16, 2);   //LCD pin
+SoftwareSerial BTSerial (4, 3);   //bluetooth pin RX||TX
+LiquidCrystal_I2C lcd(0x27, 20, 4);   //LCD pin
 
 
 
@@ -66,22 +66,24 @@ void createWeb() {
           client.println("<TR>");
           client.println("<TH>Sensor Slot</TH>");
           client.println("<TH>VALUE</TH>");
-          client.println("<TH>STATE</TH>");
+          //client.println("<TH>STATE</TH>");
           client.println("</TR>");
-          //
-          client.println("<TR ALIGN=\"CENTER\">");
-          client.print("<TD class=\"chan\">");
-          client.print(0);
-          client.println("</TD>");
 
 //create table data
-          client.print("<TD class=\"value\">");
-          client.print(a);
-          if (a > 0) {
-            client.print("<TD style='background-color:#ff0000;color:#ff0000;'>");
-          } else {
-            client.print("<TD style='background-color:#00FF00;color:#00FF00;'>");
-
+          for (int analogChannel = 0; analogChannel < 3; analogChannel++) {
+            int sensorReading = analogRead(analogChannel); //read analogs
+            /*Add the channel to the table with the class identifier*/
+            client.println("<TR ALIGN=\"CENTER\">");
+            client.print("<TD class=\"chan\">");
+            client.print(analogChannel);
+            client.println("</TD>");
+            /*******************************************************/
+            /*Add the coorosponding value to the table*************/
+            client.print("<TD class=\"value\">");
+            client.print(sensorReading);
+            client.println("</TD>");
+            client.println("</TR>");
+            /******************************************************/
           }
 
           client.println("</TD>");
@@ -161,13 +163,14 @@ void sendBT() {
   BTSerial.print(b);
   BTSerial.print(" ");
   BTSerial.print(c);
-  BTSerial.print(" ");
-  BTSerial.println(d);
+  //BTSerial.print(" ");
+  //BTSerial.println(d);
   delay(1000);
 }
 
 bool EthernetEnable = LOW;
 bool BTEnable = LOW;
+bool data = LOW;
 
 void setup() {
   lcd.init(); //initialize LCD
@@ -193,29 +196,61 @@ void setup() {
   server.begin();
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
-  pinMode(2, INPUT_PULLUP);
   pinMode(5, INPUT_PULLUP);
+  pinMode(6, INPUT_PULLUP);
+  pinMode(7, INPUT_PULLUP);
+  pinMode(2,OUTPUT);
   
 
 }
 
 
 void loop() {
-  EthernetEnable = !digitalRead(2); //read if sending data with ethernet
-  BTEnable = !digitalRead(5); //read if sending data with bluetooth
+  digitalWrite(5,HIGH);
+  digitalWrite(6,HIGH);
+  if (digitalRead(5) == LOW){
+    EthernetEnable = !EthernetEnable;
+    delay(10);
+  }
+  if (digitalRead(6) == LOW){
+    BTEnable = !BTEnable;
+    delay(10);
+  }
+
 
 //reading sensor data
   a = analogRead(0);
   b = analogRead(1);
   c = analogRead(2);
-  d = analogRead(3);
+  //d = analogRead(3);
 
-  state = !digitalRead(3);
+  if (!digitalRead(7)==HIGH){
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Sensor 1: ");
+    lcd.print(analogRead(0));
+    lcd.setCursor(0,1);
+    lcd.print("Sensor 2: ");
+    lcd.print(analogRead(1));
+    lcd.setCursor(0,2);
+    lcd.print("Sensor 3: ");
+    lcd.print(analogRead(2));
+    if (EthernetEnable == HIGH) {
+      createWeb();
+    } else {
+      EthDisabled();
+    }
+    lcd.setCursor(0,1); //set the cursor of LCD to second row, first digit
+    if (BTEnable == HIGH) {
+      sendBT();
+    }
+    delay(1000);
+  } else {
 
-  if (state == HIGH){
+
     lcd.clear();  //clear data on LCD
     lcd.setCursor(0,0);   //set the cursor of LCD to first row, first digit
-  
+    
     if (EthernetEnable == HIGH) {
       lcd.print("IP:192.168.1.177");  //notify the user the ip address of data
       createWeb();
@@ -227,14 +262,15 @@ void loop() {
     if (BTEnable == HIGH) {
       lcd.print("BT Enabled");  //notify the user bluetooth is connected
       sendBT();
-      
-    } else{
+    } else {
       lcd.print("BT Disabled"); //norifying the user bluetooth is disabled
     }
-  } else {
-    for i in range(0,3){
-      
-    }
+  }
+
+  if (a>500||b>500||c>500){
+    digitalWrite(2,HIGH);
+  } else{
+    digitalWrite(2,LOW);
   }
   
   delay(50);
