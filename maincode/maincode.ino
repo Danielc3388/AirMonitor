@@ -25,8 +25,11 @@ int a, b, c, d; //variables for gas sensor data to store
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED //mac address for website
 };
-IPAddress ip(192, 168, 1, 177); //IP address for the ethernet
+IPAddress ip(192, 168, 1, 199); //IP address for the ethernet
                                 //Unique in local network
+IPAddress subnet(255, 255, 255, 0);
+
+IPAddress gateway(192,168,1, 1);
 
 
 EthernetServer server(80);
