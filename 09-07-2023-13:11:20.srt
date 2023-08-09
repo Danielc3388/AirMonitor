@@ -1,0 +1,128 @@
+1
+00:00:00,090 --> 00:00:03,726
+Good morning. Today we would like to introduce our Stem product to you within
+
+2
+00:00:03,828 --> 00:00:06,894
+goal free. We've chosen Goal 3.9.
+
+3
+00:00:07,012 --> 00:00:10,410
+We want to prevent people from dying from accidental
+
+4
+00:00:10,490 --> 00:00:13,594
+carbon monoxide poisoning. But why can't
+
+5
+00:00:13,642 --> 00:00:17,898
+people stay away from these gases? Because these chemicals are odorless
+
+6
+00:00:17,994 --> 00:00:21,934
+and is hard to identify with only smell. And most people
+
+7
+00:00:22,052 --> 00:00:26,178
+can't afford a well developed system to detect gases in households.
+
+8
+00:00:26,274 --> 00:00:29,474
+We would like to develop a system that keep on monitoring the presence
+
+9
+00:00:29,522 --> 00:00:33,346
+of a certain gases and give warning to people. If a certain gas
+
+10
+00:00:33,378 --> 00:00:36,726
+is detected, the device will send warnings to people around it
+
+11
+00:00:36,748 --> 00:00:40,378
+and the users can check the exact concentration of the gas in the
+
+12
+00:00:40,384 --> 00:00:43,962
+air through a system. This is our prototype using an
+
+13
+00:00:44,016 --> 00:00:48,170
+Arduino board. On the front there is a two four
+
+14
+00:00:48,240 --> 00:00:51,766
+a LCD screen. It can be used to show
+
+15
+00:00:51,808 --> 00:00:55,610
+the data of the sensors and help the user to check if it is allowed
+
+16
+00:00:55,690 --> 00:00:59,386
+to communicate using different methods. We will introduce
+
+17
+00:00:59,418 --> 00:01:03,054
+this later. By looking at the site we can
+
+18
+00:01:03,092 --> 00:01:06,974
+see that there's the Adjournal uno board as the processing
+
+19
+00:01:07,022 --> 00:01:10,270
+center of the system and Evernet Shield
+
+20
+00:01:10,350 --> 00:01:13,822
+for Adrenal uno to get access to the Internet.
+
+21
+00:01:13,966 --> 00:01:17,922
+And by looking at the back you can see the two sensors
+
+22
+00:01:18,066 --> 00:01:20,550
+and the potential meter for testing.
+
+23
+00:01:21,290 --> 00:01:24,994
+There are three outputs for the system using Arduino
+
+24
+00:01:25,042 --> 00:01:29,362
+board. Firstly, it can show the data directly on the LCD
+
+25
+00:01:29,426 --> 00:01:33,094
+display as shown. Secondly, it can transfer the
+
+26
+00:01:33,132 --> 00:01:36,226
+data to the app on your smartphone using Bluetooth,
+
+27
+00:01:36,338 --> 00:01:40,010
+but the process is a bit slow as an alternative.
+
+28
+00:01:40,130 --> 00:01:44,174
+The alternative can also send the data to an IP address as
+
+29
+00:01:44,212 --> 00:01:47,582
+a web page. If you want to know more about how the system works,
+
+30
+00:01:47,636 --> 00:01:51,722
+you may refer to this document. If you want to understand how the gas
+
+31
+00:01:51,786 --> 00:01:55,514
+sensors detect the gases, you may visit this website for the details.
+
+32
+00:01:55,562 --> 00:01:56,494
+Thank you.
+

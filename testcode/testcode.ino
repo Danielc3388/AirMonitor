@@ -1,13 +1,13 @@
 /*
 
-Function :  To read data from arduino board and send the data
+  Function :  To read data from arduino board and send the data
             collected to html websites and bluetooth
 
-Author : Daniel Chan
-Created on : Jan 2023
-Last modified : 16 May 2023
-Use with project : Gas sensor
-Github :  https://github.com/Danielc3388/AirMonitor.git
+  Author : Daniel Chan
+  Created on : Jan 2023
+  Last modified : 16 May 2023
+  Use with project : Gas sensor
+  Github :  https://github.com/Danielc3388/AirMonitor.git
 
 */
 
@@ -25,9 +25,9 @@ int a, b, c, d; //variables for gas sensor data to store
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED //mac address for website
 };
-IPAddress ip(192, 168, 1, 177); //IP address for the ethernet
-                                //Unique in local network
+IPAddress ip(192, 168, 1, 177);
 
+IPAddress subnet(255, 255, 255, 0);
 
 EthernetServer server(80);
 SoftwareSerial BTSerial (4, 3);   //bluetooth pin RX||TX
@@ -37,7 +37,9 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);   //LCD pin
 
 void createWeb() {
   EthernetClient client = server.available();
+  Serial.println("Enabled");
   if (client) { //when accessed
+    Serial.println("OK");
     Serial.println("new client");
     boolean currentLineIsBlank = true;
     while (client.connected()) {
@@ -45,7 +47,7 @@ void createWeb() {
         char c = client.read();
         Serial.write(c);
 
-//writing html
+        //writing html
         if (c == '\n' && currentLineIsBlank) {
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html");
@@ -69,7 +71,7 @@ void createWeb() {
           //client.println("<TH>STATE</TH>");
           client.println("</TR>");
 
-//create table data
+          //create table data
           for (int analogChannel = 0; analogChannel < 3; analogChannel++) {
             int sensorReading = analogRead(analogChannel); //read analogs
             /*Add the channel to the table with the class identifier*/
@@ -91,7 +93,7 @@ void createWeb() {
           //
           client.println("</TABLE>");
 
-//end of table
+          //end of table
 
           client.println("<p>System Created by Daniel Chan</p>");
           client.println("</main>");
@@ -113,6 +115,7 @@ void createWeb() {
 
 void EthDisabled() {
   EthernetClient client = server.available();
+  Serial.println("Disabled");
   if (client) {   //if accessed
     Serial.println("new client");
     boolean currentLineIsBlank = true;
@@ -121,7 +124,7 @@ void EthDisabled() {
         char c = client.read();
         Serial.write(c);
 
-//start creating html
+        //start creating html
         if (c == '\n' && currentLineIsBlank) {
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html");
@@ -140,7 +143,7 @@ void EthDisabled() {
           client.println("</html>");
           break;
         }
-//end of html
+        //end of html
 
         if (c == '\n') {
           currentLineIsBlank = true;
@@ -157,7 +160,7 @@ void EthDisabled() {
 
 void sendBT() {
 
-//sending data via BlueTooth
+  //sending data via BlueTooth
   BTSerial.print(a);
   BTSerial.print(" ");
   BTSerial.print(b);
@@ -199,40 +202,48 @@ void setup() {
   pinMode(5, INPUT_PULLUP);
   pinMode(6, INPUT_PULLUP);
   pinMode(7, INPUT_PULLUP);
-  pinMode(2,OUTPUT);
-  
+  pinMode(2, OUTPUT);
+
 
 }
 
+int count = 40;
+bool up = false;
+bool five = false;
 
 void loop() {
-  digitalWrite(5,HIGH);
-  digitalWrite(6,HIGH);
-  if (digitalRead(5) == LOW){
+  digitalWrite(7, HIGH);
+  digitalWrite(6, HIGH);
+  if (digitalRead(7) == LOW) {
     EthernetEnable = !EthernetEnable;
+    up = true;
     delay(10);
   }
-  if (digitalRead(6) == LOW){
+  if (digitalRead(6) == LOW) {
     BTEnable = !BTEnable;
+    up = true;
     delay(10);
   }
 
 
-//reading sensor data
+  //reading sensor data
   a = analogRead(0);
   b = analogRead(1);
   c = analogRead(2);
-  //d = analogRead(3);
-
-  if (!digitalRead(7)==HIGH){
+  if (!digitalRead(5) == LOW) {
+    Serial.println("not 5");
+  }
+  if (!digitalRead(5) == HIGH) {
+    five = true;
+    Serial.println("5");
     lcd.clear();
-    lcd.setCursor(0,0);
+    lcd.setCursor(0, 0);
     lcd.print("Sensor 1: ");
     lcd.print(analogRead(0));
-    lcd.setCursor(0,1);
+    lcd.setCursor(0, 1);
     lcd.print("Sensor 2: ");
     lcd.print(analogRead(1));
-    lcd.setCursor(0,2);
+    lcd.setCursor(0, 2);
     lcd.print("Sensor 3: ");
     lcd.print(analogRead(2));
     if (EthernetEnable == HIGH) {
@@ -240,38 +251,53 @@ void loop() {
     } else {
       EthDisabled();
     }
-    lcd.setCursor(0,1); //set the cursor of LCD to second row, first digit
-    if (BTEnable == HIGH) {
+    lcd.setCursor(0, 1); //set the cursor of LCD to second row, first digit
+    if (BTEnable == HIGH && count % 40) {
       sendBT();
     }
     delay(1000);
   } else {
 
-
-    lcd.clear();  //clear data on LCD
-    lcd.setCursor(0,0);   //set the cursor of LCD to first row, first digit
-    
+    if (up) {
+      lcd.clear();  //clear data on LCD
+      lcd.setCursor(0, 0);  //set the cursor of LCD to first row, first digit
+    }
     if (EthernetEnable == HIGH) {
-      lcd.print("IP:192.168.1.177");  //notify the user the ip address of data
+      if (up) {
+        lcd.print("IP:192.168.1.177");  //notify the user the ip address of data
+      }
       createWeb();
     } else {
       EthDisabled();
-      lcd.print("Ethernet Disabled");   //notify the user ethernet is disabled
+      if (up) {
+        lcd.print("Ethernet Disabled");   //notify the user ethernet is disabled
+      }
     }
-    lcd.setCursor(0,1); //set the cursor of LCD to second row, first digit
+    lcd.setCursor(0, 1); //set the cursor of LCD to second row, first digit
     if (BTEnable == HIGH) {
-      lcd.print("BT Enabled");  //notify the user bluetooth is connected
-      sendBT();
+      if (up) {
+        lcd.print("BT Enabled");  //notify the user bluetooth is connected
+      }
+      if (count % 40) {
+        sendBT();
+      }
     } else {
-      lcd.print("BT Disabled"); //norifying the user bluetooth is disabled
+      if (up) {
+        lcd.print("BT Disabled"); //norifying the user bluetooth is disabled
+      }
     }
+
+  }
+  up = false;
+  if (five){
+    up = true;
+  }
+  five = false;
+  if (a > 500 || b > 500 || c > 500) {
+    digitalWrite(2, HIGH);
+  } else {
+    digitalWrite(2, LOW);
   }
 
-  if (a>500||b>500||c>500){
-    digitalWrite(2,HIGH);
-  } else{
-    digitalWrite(2,LOW);
-  }
-  
   delay(50);
 }
