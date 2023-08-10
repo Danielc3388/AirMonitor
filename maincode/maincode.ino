@@ -29,9 +29,6 @@ IPAddress ip(192, 168, 1, 177);
 
 IPAddress subnet(255, 255, 255, 0);
 
-IPAddress gateway(192, 168, 1, 117);
-
-
 EthernetServer server(80);
 SoftwareSerial BTSerial (4, 3);   //bluetooth pin RX||TX
 LiquidCrystal_I2C lcd(0x27, 20, 4);   //LCD pin
@@ -40,13 +37,15 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);   //LCD pin
 
 void createWeb() {
   EthernetClient client = server.available();
+  Serial.println("Enabled");
   if (client) { //when accessed
+    Serial.println("OK");
     Serial.println("new client");
     boolean currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        //Serial.write(c);
+        Serial.write(c);
 
         //writing html
         if (c == '\n' && currentLineIsBlank) {
@@ -116,13 +115,14 @@ void createWeb() {
 
 void EthDisabled() {
   EthernetClient client = server.available();
+  Serial.println("Disabled");
   if (client) {   //if accessed
     Serial.println("new client");
     boolean currentLineIsBlank = true;
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        //Serial.write(c);
+        Serial.write(c);
 
         //start creating html
         if (c == '\n' && currentLineIsBlank) {
@@ -168,13 +168,12 @@ void sendBT() {
   BTSerial.print(c);
   //BTSerial.print(" ");
   //BTSerial.println(d);
-  delay(20);
+  delay(1000);
 }
 
 bool EthernetEnable = LOW;
 bool BTEnable = LOW;
 bool data = LOW;
-bool up = HIGH;
 
 void setup() {
   lcd.init(); //initialize LCD
@@ -204,31 +203,25 @@ void setup() {
   pinMode(6, INPUT_PULLUP);
   pinMode(7, INPUT_PULLUP);
   pinMode(2, OUTPUT);
-
-
+  delay(50);
 }
 
 int count = 40;
-
+bool up = true;
+bool five = false;
 
 void loop() {
-  digitalWrite(5, HIGH);
+  digitalWrite(7, HIGH);
   digitalWrite(6, HIGH);
-  if (digitalRead(5) == HIGH) {
-    if (digitalRead(5) != EthernetEnable){
-      up = HIGH;
-    }
+  if (digitalRead(7) == LOW) {
     EthernetEnable = !EthernetEnable;
-    Serial.println(EthernetEnable);
-    Serial.println(up);
+    up = true;
+    delay(10);
   }
-  if (digitalRead(6) == HIGH) {
-    if (digitalRead(6) != BTEnable){
-      up = HIGH;
-    }
-    Serial.println(BTEnable);
-    Serial.println(up);
+  if (digitalRead(6) == LOW) {
     BTEnable = !BTEnable;
+    up = true;
+    delay(10);
   }
 
 
@@ -236,86 +229,74 @@ void loop() {
   a = analogRead(0);
   b = analogRead(1);
   c = analogRead(2);
-  //d = analogRead(3);
-
-  if (!digitalRead(7) == HIGH) {
-    if (count % 5) {
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Sensor 1: ");
-      lcd.print(analogRead(0));
-      lcd.setCursor(0, 1);
-      lcd.print("Sensor 2: ");
-      lcd.print(analogRead(1));
-      lcd.setCursor(0, 2);
-      lcd.print("Sensor 3: ");
-      lcd.print(analogRead(2));
-    }
+  if (!digitalRead(5) == LOW) {
+    Serial.println("not 5");
+  }
+  if (!digitalRead(5) == HIGH) {
+    five = true;
+    Serial.println("5");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Sensor 1: ");
+    lcd.print(analogRead(0));
+    lcd.setCursor(0, 1);
+    lcd.print("Sensor 2: ");
+    lcd.print(analogRead(1));
+    lcd.setCursor(0, 2);
+    lcd.print("Sensor 3: ");
+    lcd.print(analogRead(2));
     if (EthernetEnable == HIGH) {
       createWeb();
     } else {
       EthDisabled();
     }
-    if (BTEnable == HIGH) {
-      if (count == 40) {
-        sendBT();
-      }
+    lcd.setCursor(0, 1); //set the cursor of LCD to second row, first digit
+    if (BTEnable == HIGH && count % 40) {
+      sendBT();
     }
+    delay(1000);
   } else {
 
-    if (up == HIGH) {
+    if (up) {
       lcd.clear();  //clear data on LCD
       lcd.setCursor(0, 0);  //set the cursor of LCD to first row, first digit
     }
     if (EthernetEnable == HIGH) {
-      if (up == HIGH) {
+      if (up) {
         lcd.print("IP:192.168.1.177");  //notify the user the ip address of data
       }
+      createWeb();
     } else {
-
-      if (up == HIGH) {
+      EthDisabled();
+      if (up) {
         lcd.print("Ethernet Disabled");   //notify the user ethernet is disabled
       }
     }
     lcd.setCursor(0, 1); //set the cursor of LCD to second row, first digit
     if (BTEnable == HIGH) {
-      if (up == HIGH) {
+      if (up) {
         lcd.print("BT Enabled");  //notify the user bluetooth is connected
       }
+      if (count % 40) {
+        sendBT();
+      }
     } else {
-      if (up == HIGH) {
+      if (up) {
         lcd.print("BT Disabled"); //norifying the user bluetooth is disabled
       }
     }
 
-//
-    if (EthernetEnable == HIGH) {
-      if (count % 10) {
-        createWeb();
-      }
-    } else {
-
-      if (count % 10) {
-        EthDisabled();
-      }
-    }
-    if (BTEnable == HIGH) {
-      if (count % 40) {
-        sendBT();
-      }
-    }
   }
-
+  up = false;
+  if (five){
+    up = true;
+  }
+  five = false;
   if (a > 500 || b > 500 || c > 500) {
     digitalWrite(2, HIGH);
   } else {
     digitalWrite(2, LOW);
   }
-  if (count == 40) {
-    count = 0;
-  } else {
-    count = count + 1;
-  }
-  up = LOW;
-  delay(30);
+
+  delay(50);
 }
