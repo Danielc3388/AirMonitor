@@ -207,7 +207,7 @@ void setup() {
 
 }
 
-int count = 40;
+int count = 10;
 bool up = false;
 bool five = false;
 
@@ -252,7 +252,7 @@ void loop() {
       EthDisabled();
     }
     lcd.setCursor(0, 1); //set the cursor of LCD to second row, first digit
-    if (BTEnable == HIGH && count % 40) {
+    if (BTEnable == HIGH && count % 10 == 0) {
       sendBT();
     }
     delay(1000);
@@ -278,7 +278,7 @@ void loop() {
       if (up) {
         lcd.print("BT Enabled");  //notify the user bluetooth is connected
       }
-      if (count % 40) {
+      if (count % 10 == 0) {
         sendBT();
       }
     } else {
@@ -297,6 +297,11 @@ void loop() {
     digitalWrite(2, HIGH);
   } else {
     digitalWrite(2, LOW);
+  }
+
+  count++;
+  if (count>10){
+    count=0;
   }
 
   delay(50);
