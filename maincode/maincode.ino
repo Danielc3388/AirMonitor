@@ -1,12 +1,12 @@
 /*
 
   Function :  To read data from arduino board and send the data
-            collected to html websites and bluetooth
+              collected to html websites and bluetooth
 
   Author : Daniel Chan
   Created on : Jan 2023
-  Last modified : 16 May 2023
-  Use with project : Gas sensor
+  Last modified : 10 Aug 2023
+  Use with project : Air Monitoring System
   Github :  https://github.com/Danielc3388/AirMonitor.git
 
 */
