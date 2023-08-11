@@ -208,7 +208,7 @@ void setup() {
 }
 
 int count = 10;
-bool up = false;
+bool up = true;
 bool five = false;
 
 void loop() {
